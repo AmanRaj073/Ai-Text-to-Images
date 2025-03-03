@@ -33,7 +33,7 @@ const BuyCredit = () => {
             <p className="text-sm">{item.desc}</p>
             <p className="mt-6">
               <span className="text-3xl font-medium">${item.price}</span> /{" "}
-              {item.credit} credits
+              {item.credits} credits
             </p>
             <button className="w-full bg-gray-800 text-white mt-8 text-sm rounded-md py-2.5 min-w-52">
               {" "}
