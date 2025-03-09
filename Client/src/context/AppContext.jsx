@@ -70,6 +70,7 @@ const AppContextProvider = (props) => {
     setCredits,
     logout,
     generateImage,
+    loadCreditsData,
   };
 
   return (

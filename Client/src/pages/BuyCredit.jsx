@@ -8,47 +8,60 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const BuyCredit = () => {
-  const { user,backendUrl,loadCreditsData,token,setShowLogin } = useContext(AppContext);
+  const { user, backendUrl, loadCreditsData, token, setShowLogin } =
+    useContext(AppContext);
 
-  const naviagte = useNavigate()
+  const naviagte = useNavigate();
 
-  const initPay = async (order)=>{
+  const initPay = async (order) => {
     const options = {
       key: import.meta.env.VITE_RZR_PAY_KEY,
-      amount: order.amount, 
+      amount: order.amount,
       currency: order.currency,
       name: "IMAGIFY CREDITS",
       description: "IMAGIFY CREDITS PAYMENT",
-      order_id:order.id,
-      receipt:order.receipt,
-      handler: async(response)=>{
-        console.log(response)
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        try {
+          const { data } = await axios.post(backendUrl + "/api/user/verify-razor", response, {
+            headers: { token },
+          });
+          if (data.success) {
+            loadCreditsData();
+            naviagte("/");
+            toast.success("Credit Added");
+          }
+        } catch (error) {
+          console.error(error.message);
+          toast.error(error.message);
+        }
       },
-    }
-    const rzp = new window.Razorpay(options)
-    rzp.open()
-  }
-  const paymentRazorpay = async(planId)=>{
+    };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  };
+  const paymentRazorpay = async (planId) => {
     try {
-      if(!user){
-        setShowLogin(true)
+      if (!user) {
+        setShowLogin(true);
         return;
       }
 
-      const {data} = await axios.post(backendUrl + "/api/user/payrazor",{planId},
-        {headers:{token}}
-      )
+      const { data } = await axios.post(
+        backendUrl + "/api/user/payrazor",
+        { planId },
+        { headers: { token } }
+      );
 
-      if(data.success){
-        initPay(data.order)
+      if (data.success) {
+        initPay(data.order);
       }
-
-
     } catch (error) {
-      console.error(error.message)
-      toast.error(error.message)
+      console.error(error.message);
+      toast.error(error.message);
     }
-  }
+  };
 
   return (
     <motion.div
@@ -78,7 +91,10 @@ const BuyCredit = () => {
               <span className="text-3xl font-medium">${item.price}</span> /{" "}
               {item.credits} credits
             </p>
-            <button onClick={()=> paymentRazorpay(item.id)} className="w-full bg-gray-800 text-white mt-8 text-sm rounded-md py-2.5 min-w-52">
+            <button
+              onClick={() => paymentRazorpay(item.id)}
+              className="w-full bg-gray-800 text-white mt-8 text-sm rounded-md py-2.5 min-w-52"
+            >
               {" "}
               {user ? "Purchase" : "Get Started"}
             </button>
